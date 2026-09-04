@@ -1,16 +1,11 @@
-# Web Server & WSGI Production Server for Render
+# Web Server
 Flask>=3.0.0
 gunicorn>=23.0.0
 
-# Deep Learning Frameworks (PyTorch & FastAI)
+# Deep Learning Frameworks
 torch>=2.0.0
 torchvision>=0.15.0
 fastai>=2.7.12
-
-# Essential Compatibility Dependencies for FastAI Model Unpickling
-spacy<3.8.0
-plum-dispatch<2.0.0
-cloudpickle>=3.0.0
 
 # Data Processing & Classical ML Models
 numpy>=1.24.0
