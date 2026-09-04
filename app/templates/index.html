@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Paddy Disease Detection</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+    <div class="main-card">
+        <div class="header">
+            <h1>Paddy Disease Detection</h1>
+            <p>Upload a photo, choose a model, and get the disease prediction.</p>
+        </div>
+
+        <form id="detectForm">
+            <div class="field-group">
+                <label class="label">1. Select Photo</label>
+                <label for="fileInput" class="file-btn">Choose Photo</label>
+                <input type="file" id="fileInput" name="file" accept="image/*" capture="environment"
+                    onchange="previewFile(event)" required>
+                <div id="fileName" class="file-name">No file chosen</div>
+            </div>
+
+            <div id="previewBox" class="preview-box" style="display: none;">
+                <img id="previewImg" src="" alt="Selected Photo">
+            </div>
+
+            <div class="field-group">
+                <label class="label" for="modelSelect">2. Select Model</label>
+                <select id="modelSelect" name="model" class="select-input">
+                    {% for key, name in models.items() %}
+                    <option value="{{ key }}">{{ name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <button type="submit" id="submitBtn" class="btn-detect" disabled>
+                <span class="spinner" id="spinner"></span>
+                <span id="btnText">Predict Disease</span>
+            </button>
+        </form>
+
+        <div id="resultBox" class="result-box" style="display: none;">
+            <div class="res-meta" id="resModel">Model: --</div>
+            <div class="res-disease" id="resDisease">--</div>
+            <div class="res-conf" id="resConf">Confidence: --</div>
+
+            <div class="res-detail">
+                <strong>Symptoms:</strong>
+                <p id="resSymptoms">--</p>
+            </div>
+
+            <div class="res-detail">
+                <strong>Treatment:</strong>
+                <p id="resTreatment">--</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let selectedFile = null;
+
+        function previewFile(event) {
+            const file = event.target.files[0];
+            if (file) {
+                selectedFile = file;
+                document.getElementById('fileName').textContent = file.name;
+
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    document.getElementById('previewImg').src = e.target.result;
+                    document.getElementById('previewBox').style.display = 'block';
+                    document.getElementById('submitBtn').disabled = false;
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        document.getElementById('detectForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+            if (!selectedFile) return;
+
+            const submitBtn = document.getElementById('submitBtn');
+            const spinner = document.getElementById('spinner');
+            const btnText = document.getElementById('btnText');
+
+            submitBtn.disabled = true;
+            spinner.style.display = 'inline-block';
+            btnText.textContent = 'Processing...';
+
+            const formData = new FormData();
+            formData.append('file', selectedFile);
+            formData.append('model', document.getElementById('modelSelect').value);
+
+            try {
+                const res = await fetch('/predict', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await res.json();
+
+                if (data.success) {
+                    document.getElementById('resultBox').style.display = 'block';
+                    document.getElementById('resModel').textContent = 'Model: ' + data.model_used;
+                    document.getElementById('resDisease').textContent = data.disease;
+                    document.getElementById('resConf').textContent = 'Confidence: ' + data.confidence;
+                    document.getElementById('resSymptoms').textContent = data.symptoms;
+                    document.getElementById('resTreatment').textContent = data.treatment;
+                } else {
+                    alert('Error: ' + (data.error || 'Prediction failed'));
+                }
+            } catch (err) {
+                console.error(err);
+                alert('Server error.');
+            } finally {
+                submitBtn.disabled = false;
+                spinner.style.display = 'none';
+                btnText.textContent = 'Predict Disease';
+            }
+        });
+    </script>
+</body>
+
+</html>
