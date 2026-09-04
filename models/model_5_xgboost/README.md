@@ -43,7 +43,6 @@ This makes XGBoost a useful model to compare against SVM, KNN, and Random Forest
 
 The model was implemented using `xgboost.XGBClassifier`.
 
-```python
 XGBClassifier(
     n_estimators=300,
     max_depth=6,
@@ -56,7 +55,6 @@ XGBClassifier(
     random_state=42,
     n_jobs=-1
 )
-```
 
 | Parameter            | Value           |
 | -------------------- | --------------- |
@@ -165,11 +163,10 @@ Approximate size:
 
 The model can be loaded using `joblib`:
 
-```python
 import joblib
 
 model = joblib.load("model_5_xgboost.pkl")
-```
+
 
 # Git LFS
 
@@ -177,10 +174,8 @@ The model is tracked using Git Large File Storage (Git LFS) as part of the repos
 
 After cloning the repository:
 
-```bash
 git lfs install
 git lfs pull
-```
 
 This retrieves the actual model file.
 
@@ -264,17 +259,17 @@ These are potential future experiments and are not part of the current baseline.
 
 XGBoost produced a strong classical ML result:
 
-> **76.17% validation accuracy**
+**76.17% validation accuracy**
 
 It was only **0.76 percentage points below SVM**, making it a close second among the classical models.
 
 At the same time, XGBoost required approximately:
 
-> **403.45 seconds for training**
+**403.45 seconds for training**
 
 but only:
 
-> **0.17 seconds for inference on 2,081 validation samples**
+**0.17 seconds for inference on 2,081 validation samples**
 
 This highlights an important practical trade-off between training cost and prediction speed.
 
@@ -284,12 +279,9 @@ XGBoost provides a powerful tree-based alternative for classifying the 512-dimen
 
 ### Final Result
 
-> **76.17% validation accuracy**
+**76.17% validation accuracy**
 
 It is currently the **second-best classical ML model** in the project, behind SVM.
 
 Although it does not match the **98.03% validation accuracy of the fine-tuned ResNet34**, the experiment demonstrates that gradient-boosted trees can extract useful classification information from deep CNN feature representations.
 
-```
-
-```

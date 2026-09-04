@@ -1,8 +1,3 @@
-## 2️⃣ Model 1 — ResNet34 README
-
-Replace `models/model_1_resenet34/README.md` with:
-
-````markdown
 # Model 1 — ResNet34 CNN
 
 ResNet34 is the **first and primary deep learning model** in this project.
@@ -11,9 +6,7 @@ It is used to classify paddy crop images into 10 disease/pest categories. More i
 
 The model is based on a pretrained ResNet34 network and is fine-tuned on the Paddy Doctor dataset using FastAI with a PyTorch backend.
 
----
-
-## 🎯 Why ResNet34?
+## Why ResNet34?
 
 The first goal of the project was to establish a strong deep-learning baseline before experimenting with traditional machine learning algorithms.
 
@@ -21,9 +14,8 @@ ResNet34 was selected as the baseline because it provides a relatively deep conv
 
 The model is trained directly on the images rather than relying on manually designed image features.
 
----
 
-## 🧠 Role in the Project
+## Role in the Project
 
 ResNet34 has two important roles:
 
@@ -31,7 +23,6 @@ ResNet34 has two important roles:
 
 The network receives a paddy crop image and predicts one of the 10 classes.
 
-```text
 Paddy Leaf Image
        ↓
    ResNet34 CNN
@@ -41,7 +32,6 @@ Paddy Leaf Image
   Classification
        ↓
    10 Classes
-````
 
 ### 2. Feature Extractor
 
@@ -49,7 +39,6 @@ After training, the final classification layer is removed for the feature-extrac
 
 The remaining network produces a **512-dimensional feature vector** for each image.
 
-```text
 Paddy Leaf Image
        ↓
    ResNet34
@@ -59,13 +48,11 @@ Paddy Leaf Image
  ┌─────┬─────┬──────────────┬─────────┐
  ↓     ↓     ↓              ↓
  SVM  KNN  Random Forest  XGBoost
-```
 
 This allows the same learned visual representation to be evaluated using traditional ML algorithms.
 
----
 
-# 🏗️ Architecture
+#  Architecture
 
 The model uses:
 
@@ -75,15 +62,12 @@ The ResNet34 network is initialized with pretrained ImageNet weights and then fi
 
 The classifier head produces predictions for:
 
-```text
 10 classes
-```
 
 The trained model's representation immediately before the final classifier provides the **512-dimensional feature vector** used by Models 2–5.
 
----
 
-# 📷 Data Preprocessing
+# Data Preprocessing
 
 The preprocessing pipeline follows the implementation used in the training notebook.
 
@@ -91,9 +75,7 @@ The preprocessing pipeline follows the implementation used in the training noteb
 
 Images are resized to:
 
-```text
 480 px
-```
 
 using the `squish` resize method.
 
@@ -101,21 +83,16 @@ using the `squish` resize method.
 
 The images are then transformed to:
 
-```text
 224 × 224
-```
 
 using FastAI's `aug_transforms` with:
 
-```text
 min_scale = 0.75
-```
 
 This provides data augmentation during CNN training.
 
----
 
-# ⚙️ Training Configuration
+# Training Configuration
 
 | Setting                | Value            |
 | ---------------------- | ---------------- |
@@ -135,30 +112,24 @@ This provides data augmentation during CNN training.
 
 The dataset is split into:
 
-```text
 Training   : 8,326 images
 Validation : 2,081 images
-```
 
----
 
-# 🚀 Training
+# Training
 
 The model is trained using FastAI's `fine_tune` procedure.
 
 The important training configuration is:
 
-```python
 learn.fine_tune(50, 0.005)
-```
 
 This means the pretrained network is adapted to the paddy disease classification task for 50 epochs using a learning rate of 0.005.
 
 Mixed precision (`fp16`) is used during training.
 
----
 
-# 📊 Verified Performance
+# Verified Performance
 
 The ResNet34 model achieved:
 
@@ -166,22 +137,17 @@ The ResNet34 model achieved:
 
 The result was obtained on the project's held-out validation set containing:
 
-```text
 2,081 images
-```
 
 with:
 
-```text
 Error rate = 0.0197
 Accuracy   = 98.03%
-```
 
 This is currently the **best verified result in the project**.
 
----
 
-# ⚠️ About the TTA Result
+# About the TTA Result
 
 The notebook contains a separately written summary mentioning a TTA accuracy of approximately 98.17%.
 
@@ -189,23 +155,20 @@ However, that result is **not treated as verified** in this repository because t
 
 Therefore, the official result documented for this model is:
 
-> **98.03% validation accuracy**
+**98.03% validation accuracy**
 
 rather than the unverified TTA value.
 
----
 
-# 🧪 Evaluation Dataset
+#  Evaluation Dataset
 
 The model was evaluated using the project's validation split:
 
-```text
 Total labelled images : 10,407
 Training             : 8,326
 Validation           : 2,081
 Split                : 80/20
 Random seed           : 42
-```
 
 The official Kaggle test set contains 3,469 images, but those images are unlabeled in the downloaded dataset structure.
 
@@ -213,11 +176,10 @@ Because ground-truth labels are unavailable, a meaningful local accuracy cannot 
 
 Therefore:
 
-> **This model does not currently have a verified score on the official Kaggle test set.**
+**This model does not currently have a verified score on the official Kaggle test set.**
 
----
 
-# 🔢 Feature Extraction
+# Feature Extraction
 
 One of the most important uses of this model is feature extraction.
 
@@ -225,35 +187,28 @@ After training, the final 10-class classification layer is removed and the remai
 
 Each image becomes:
 
-```text
 Image
   ↓
 ResNet34
   ↓
 512 numbers
-```
 
 The resulting feature matrix has:
 
-```text
 Training features   : 8326 × 512
 Validation features : 2081 × 512
-```
 
 These features are saved as:
 
-```text
 X_train.npy
 y_train.npy
 X_valid.npy
 y_valid.npy
-```
 
 The four classical ML models use these saved features as their input.
 
----
 
-# 💾 Model Files
+# Model Files
 
 This folder contains two versions of the trained ResNet34 model.
 
@@ -266,40 +221,33 @@ This folder contains two versions of the trained ResNet34 model.
 
 The FastAI learner can be loaded using:
 
-```python
+
 from fastai.learner import load_learner
 
 learn = load_learner("resnet34_paddy_baseline.pkl")
-```
+
 
 ### `.pth`
 
 The `.pth` file contains the saved model weights and is intended for loading into the corresponding model architecture.
 
----
-
-# 📦 Git LFS
+# Git LFS
 
 Because the trained model files are large, they are stored using **Git Large File Storage (Git LFS)**.
 
 After cloning the repository:
 
-```bash
 git lfs install
 git lfs pull
-```
 
 Without `git lfs pull`, the large model files may appear as small pointer files instead of the actual model binaries.
 
----
 
-# 📓 Training Notebook
+# Training Notebook
 
 The model was trained in:
 
-```text
 colab_notebooks/resenet34_baseline_.ipynb
-```
 
 The notebook contains the complete workflow for:
 
@@ -312,13 +260,10 @@ The notebook contains the complete workflow for:
 7. Validation
 8. Model export
 
----
-
-# 🔗 Connection to Other Models
+# Connection to Other Models
 
 ResNet34 is the foundation for the remaining models in the repository.
 
-```text
                     ResNet34
                        │
                        ▼
@@ -333,15 +278,13 @@ ResNet34 is the foundation for the remaining models in the repository.
                        │
                        ▼
                     XGBoost
-```
 
 Models 2–5 therefore do not process the original images directly.
 
 They operate on the learned representation generated by this ResNet34 model.
 
----
 
-# 💡 Key Observation
+# Key Observation
 
 The ResNet34 experiment provides an important baseline for the rest of the project.
 
@@ -357,11 +300,10 @@ This difference shows that, in the current experiment, allowing the CNN itself t
 
 The classical models are still valuable because they provide a useful comparison and help us understand how much classification performance can be achieved from the learned CNN features alone.
 
----
 
-# 🚧 Current Status
+# Current Status
 
-### ✅ Completed
+###  Completed
 
 * ResNet34 model training
 * Transfer learning
@@ -372,7 +314,7 @@ The classical models are still valuable because they provide a useful comparison
 * Feature files saved for downstream ML models
 * Model files stored using Git LFS
 
-### 🔄 Future Improvements
+###  Future Improvements
 
 Possible next experiments include:
 
@@ -385,19 +327,13 @@ Possible next experiments include:
 * Deployment as an API
 * Mobile application integration
 
----
 
-## 📌 Summary
+##  Summary
 
 ResNet34 currently serves as the **core CNN model and feature extractor** for the project.
 
 Its verified validation performance is:
 
-> **98.03% accuracy on 2,081 validation images**
+**98.03% accuracy on 2,081 validation images**
 
 The trained network is then reused to generate 512-dimensional feature vectors, which form the input for the project's classical machine learning experiments.
-
-```
-
-This version keeps the technically important details from the existing ResNet34 README—especially the **50 epochs, 0.005 learning rate, 8,326/2,081 split, 512-D features, and verified 98.03% result**—but explains *why* each part matters rather than just listing it. :contentReference[oaicite:0]{index=0}
-```

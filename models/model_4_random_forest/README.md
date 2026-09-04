@@ -51,14 +51,12 @@ This provides a broader comparison of different traditional ML approaches when w
 
 The model was implemented using `sklearn.ensemble.RandomForestClassifier`.
 
-```python
 RandomForestClassifier(
     n_estimators=300,
     class_weight='balanced',
     random_state=42,
     n_jobs=-1
 )
-```
 
 | Parameter       | Value         |
 | --------------- | ------------- |
@@ -149,11 +147,9 @@ Approximate size:
 
 The model can be loaded using `joblib`:
 
-```python
 import joblib
 
 model = joblib.load("model_4_random_forest.pkl")
-```
 
 # Git LFS
 
@@ -161,10 +157,8 @@ The Random Forest model is a large binary file and is therefore stored using **G
 
 After cloning the repository:
 
-```bash
 git lfs install
 git lfs pull
-```
 
 This downloads the actual model binary.
 
@@ -249,7 +243,3 @@ Random Forest provides a tree-based ensemble perspective on the 512-dimensional 
 > **69.73% validation accuracy**
 
 Although it is currently the lowest-performing classical model in this comparison, the experiment helps demonstrate how different machine learning algorithms respond to the same deep-learning feature representation.
-
-```
-
-```

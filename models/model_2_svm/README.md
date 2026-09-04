@@ -6,7 +6,7 @@ Unlike the ResNet34 model, SVM does not work directly with the original paddy le
 
 This experiment helps answer an important question:
 
-> How well can a traditional machine learning classifier perform when it is given visual features learned by a deep CNN?
+How well can a traditional machine learning classifier perform when it is given visual features learned by a deep CNN?
 
 ## Role in the Project
 
@@ -51,7 +51,6 @@ In this project, the CNN has already learned useful visual information from the 
 
 The model was implemented using `sklearn.svm.SVC`.
 
-```python
 SVC(
     kernel='rbf',
     C=10,
@@ -59,7 +58,6 @@ SVC(
     probability=True,
     random_state=42
 )
-```
 
 | Parameter    | Value   |
 | ------------ | ------- |
@@ -152,11 +150,9 @@ Approximate size:
 
 The model can be loaded using `joblib`:
 
-```python
 import joblib
 
 model = joblib.load("model_2_svm.pkl")
-```
 
 # Git LFS
 
@@ -164,10 +160,8 @@ The model file is tracked using Git LFS.
 
 After cloning the repository:
 
-```bash
 git lfs install
 git lfs pull
-```
 
 This downloads the actual model file instead of leaving the repository with only the LFS pointer.
 
@@ -236,6 +230,3 @@ While this is lower than the **98.03% ResNet34 baseline**, the experiment demons
 
 The SVM therefore serves as an important comparison point in the project's investigation of **deep feature extraction + traditional machine learning**.
 
-```
-
-```
