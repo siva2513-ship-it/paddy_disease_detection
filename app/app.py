@@ -1,5 +1,6 @@
 import os
 import io
+import gc
 import base64
 from pathlib import Path
 from PIL import Image
@@ -99,13 +100,8 @@ MODEL_NAMES = {
     'rf': 'Random Forest (69.84% Acc)'
 }
 
-# Global variables for models
-resnet_model = None
-feat_extractor = None
-svm_model = None
-knn_model = None
-rf_model = None
-xgb_model = None
+# Lazy loading cache dictionary
+MODEL_CACHE = {}
 
 transform_pipeline = T.Compose([
     T.Resize((224, 224)),
@@ -113,27 +109,42 @@ transform_pipeline = T.Compose([
     T.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
 ])
 
-def load_all_models():
-    global resnet_model, feat_extractor, svm_model, knn_model, rf_model, xgb_model
+def get_resnet_and_extractor():
+    if 'resnet_model' not in MODEL_CACHE:
+        print("--> Loading ResNet34 PyTorch Model into memory...")
+        resnet = create_vision_model(resnet34, n_out=len(CLASSES))
+        state = torch.load(RESNET_PTH, map_location='cpu', weights_only=False)
+        resnet.load_state_dict(state['model'])
+        resnet.eval()
 
-    print("--> Loading ResNet34 PyTorch Model...")
-    resnet_model = create_vision_model(resnet34, n_out=len(CLASSES))
-    state = torch.load(RESNET_PTH, map_location='cpu', weights_only=False)
-    resnet_model.load_state_dict(state['model'])
-    resnet_model.eval()
+        extractor = torch.nn.Sequential(resnet[0], resnet[1][:5])
+        extractor.eval()
 
-    feat_extractor = torch.nn.Sequential(resnet_model[0], resnet_model[1][:5])
-    feat_extractor.eval()
+        MODEL_CACHE['resnet_model'] = resnet
+        MODEL_CACHE['feat_extractor'] = extractor
+        gc.collect()
 
-    print("--> Loading Classical ML Models (SVM, k-NN, Random Forest, XGBoost)...")
-    svm_model = joblib.load(SVM_PATH)
-    knn_model = joblib.load(KNN_PATH)
-    rf_model = joblib.load(RF_PATH)
-    xgb_model = joblib.load(XGB_PATH)
+    return MODEL_CACHE['resnet_model'], MODEL_CACHE['feat_extractor']
 
-    print("--> All 5 models loaded successfully into memory!")
+def get_classical_model(model_key):
+    if model_key in MODEL_CACHE:
+        return MODEL_CACHE[model_key]
 
-load_all_models()
+    print(f"--> Lazy loading classical model: {model_key}...")
+    if model_key == 'svm':
+        model = joblib.load(SVM_PATH)
+    elif model_key == 'knn':
+        model = joblib.load(KNN_PATH)
+    elif model_key == 'rf':
+        model = joblib.load(RF_PATH)
+    elif model_key == 'xgboost':
+        model = joblib.load(XGB_PATH)
+    else:
+        model = None
+
+    MODEL_CACHE[model_key] = model
+    gc.collect()
+    return model
 
 @app.route('/')
 def index():
@@ -154,12 +165,13 @@ def predict():
         image_bytes = file.read()
         pil_img = Image.open(io.BytesIO(image_bytes)).convert('RGB')
 
-        # Encode image base64
         buffered = io.BytesIO()
         pil_img.save(buffered, format="JPEG")
         img_base64 = base64.b64encode(buffered.getvalue()).decode('utf-8')
 
         img_tensor = transform_pipeline(pil_img).unsqueeze(0)
+
+        resnet_model, feat_extractor = get_resnet_and_extractor()
 
         pred_class_key = None
         confidence = "N/A"
@@ -175,17 +187,7 @@ def predict():
             with torch.no_grad():
                 feats = feat_extractor(img_tensor).numpy()
 
-            if selected_model_key == 'svm':
-                model = svm_model
-            elif selected_model_key == 'knn':
-                model = knn_model
-            elif selected_model_key == 'rf':
-                model = rf_model
-            elif selected_model_key == 'xgboost':
-                model = xgb_model
-            else:
-                model = resnet_model
-
+            model = get_classical_model(selected_model_key)
             pred_idx = int(model.predict(feats)[0])
             pred_class_key = CLASSES[pred_idx]
 
